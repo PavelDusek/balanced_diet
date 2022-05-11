@@ -2,31 +2,28 @@
 import pandas as pd
 import numpy as np
 import glob
-import re
-
-getNumber = re.compile("kalorie(\d+)\.csv")
 
 ideal_nutrition = np.array([ 140, 263, 68.3 ])
 ideal_vector = ideal_nutrition / np.linalg.norm( ideal_nutrition )
 
 dfs  = []
-csvs = glob.glob("kalorie*.csv")
+csvs = glob.glob("data/calories*.csv")
 for csv in csvs:
     df = pd.read_csv(csv)
-    df = df[[ 'nazev', 'energie', 'bilkoviny', 'sacharidy', 'tuky', 'vlaknina'] ]
+    df = df[[ 'name', 'energy', 'protein', 'sugar', 'fats', 'fiber'] ]
     dfs.append(df)
 df = pd.concat(dfs)
 df = df.drop_duplicates()
-df = df.loc[ df['nazev'] != '{{f.title}}']
+df = df.loc[ df['name'] != '{{f.title}}']
 
-df['energie']   = pd.to_numeric( df['energie'].str.replace(",", ".") )
-df['bilkoviny'] = pd.to_numeric( df['bilkoviny'].str.replace(",", ".") )
-df['sacharidy'] = pd.to_numeric( df['sacharidy'].str.replace(",", ".") )
-df['vlaknina']  = pd.to_numeric( df['vlaknina'].str.replace(",", ".") )
-df['tuky']      = pd.to_numeric( df['tuky'].str.replace(",", ".") )
+df['energy']   = pd.to_numeric( df['energy'].str.replace(",", ".").str.replace("\xa0", "") )
+df['protein'] = pd.to_numeric( df['protein'].str.replace(",", ".").str.replace("\xa0", "") )
+df['sugar'] = pd.to_numeric( df['sugar'].str.replace(",", ".").str.replace("\xa0", "") )
+df['fiber']  = pd.to_numeric( df['fiber'].str.replace(",", ".").str.replace("\xa0", "") )
+df['fats']      = pd.to_numeric( df['fats'].str.replace(",", ".").str.replace("\xa0", "") )
 
 def unit_vector( row ):
-    vector = np.array( [ row['bilkoviny'], row['sacharidy'], row['tuky'] ] )
+    vector = np.array( [ row['protein'], row['sugar'], row['fats'] ] )
     magnitude = np.linalg.norm( vector )
     return vector/magnitude
 def distance( row ):
